@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Grid,
@@ -18,7 +18,7 @@ const Cart = () => {
     const { state } = useLocation();
     const navigate = useNavigate();
     const [cartList, setCartList] = useState(state.cart);
-    console.log("cartList", cartList);
+    const [totalPrice, setTotalPrice] = useState(0);
 
     const removeFromCart = (e, itemId) => {
         e.preventDefault();
@@ -26,8 +26,33 @@ const Cart = () => {
         setCartList(cartList => cartList.filter((cart) => cart.id !== itemId))
     }
 
+    useEffect(() => {
+        let tempTotal = 0;
+        cartList.map((item) => {
+            tempTotal = tempTotal + item.quantity * item.price;
+        });
+        setTotalPrice(tempTotal);
+
+
+    }, [cartList]);
+
+
     const changeQty = (e, itemId) => {
         console.log("Quantity of item", e.target.value);
+        const newList = cartList.map((item) => {
+            if (item.id === itemId) {
+                console.log("In if...")
+                const updatedItem = {
+                    ...item,
+                    quantity: e.target.value,
+                };
+                console.log(updatedItem);
+                return updatedItem;
+            }
+            return item;
+        });
+        setCartList(newList);
+        console.log(newList)
     }
 
     return (
@@ -72,6 +97,7 @@ const Cart = () => {
                 })}
             </Grid>
             <Box alignSelf='baseline' verticalAlign='end'>
+                <Text>Total Price: {totalPrice}</Text>
                 <Link onClick={() => navigate(-1)}>Go To Products</Link>
             </Box>
         </>

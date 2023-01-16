@@ -62,7 +62,6 @@ const Product = ({ gotoCart, prodList, onClickAddNewProduct, handleAddToCart,
                 })}
             </Grid>
             <Button backgroundColor="blackAlpha.400" onClick={x} alignSelf='end'>+ Add New Product</Button>
-
         </Box >
     );
 };
