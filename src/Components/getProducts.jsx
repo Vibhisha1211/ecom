@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import Product from './product';
 import axios, { isCancel, AxiosError } from 'axios';
-import { List } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import Cart from './Cart';
+
+
 
 const GetProducts = () => {
+    const [cart, setCart] = useState([]);
     const [list1, setList] = useState([]);
-    const [cart, setCart] = useState([])
     const newProduct = { id: 11, title: 'New Title Added', price: 13.5, description: 'New desc', image: 'https://i.pravatar.cc' }
+    const navigate = useNavigate();
+    function gotoCart(event) {
+        event.preventDefault();
+        console.log("goto cart")
+        navigate('/cart', { state: { cart } })
+    }
 
     useEffect(() => {
         if (list1.length) return
@@ -32,8 +41,6 @@ const GetProducts = () => {
         console.log("Event", e);
         // axios.post(`https://fakestoreapi.com/products`, { title, description, price, image, category })
         //     .then(response => { console.log(response); });
-        console.log(list1);
-        console.log(newProduct);
         setList([...list1, newProduct]);
     }
 
@@ -46,20 +53,20 @@ const GetProducts = () => {
     }
 
     useEffect(() => {
-        console.log(cart)
+        console.log('Added to cart', cart)
     }, [cart])
 
     function handleAddToCart(productId) {
         const product = list1.find(product => product.id === productId);
         if (product) {
             product['quantity'] = 1;
-            setCart([product, ...cart])
+            setCart([product, ...cart]);
         }
     }
 
     return (
         <div>
-            <Product prodList={list1} onClickAddNewProduct={addProductHandler} handleAddToCart={handleAddToCart} onClickDeleteProduct={deleteProductHandler} />
+            <Product prodList={list1} gotoCart={gotoCart} onClickAddNewProduct={addProductHandler} handleAddToCart={handleAddToCart} onClickDeleteProduct={deleteProductHandler} />
         </div>
     );
 };

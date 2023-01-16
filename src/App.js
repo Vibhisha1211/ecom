@@ -1,30 +1,14 @@
 import "./App.css";
 import { ChakraProvider } from "@chakra-ui/react";
 import GetProducts from "./Components/getProducts";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  useRouteMatch,
-  Link,
-  useParams,
-  useNavigate,
-} from "react-router-dom";
-import AddToCart from "./Components/addToCart";
-import {
-  Grid,
-  GridItem,
-  Text,
-  Image,
-  Box,
-  Button,
-  Center,
-} from "@chakra-ui/react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Cart from "./Components/Cart";
+import { Text, Image, Box } from "@chakra-ui/react";
 import minion from "./Assets/minion.jpg";
 import CartProvider from "./Store/cart-provider";
+import { useEffect, useState } from "react";
 
-function App(props) {
-  // your cart state here
+function App() {
   return (
     <ChakraProvider>
       <CartProvider>
@@ -50,8 +34,7 @@ function App(props) {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<GetProducts />}></Route>
-            <Route path="/AddToCart" element={<AddToCart />}></Route>
-            <Route path="/cart" element={<Cart cart={cart} />}></Route>
+            <Route path="/cart" element={<Cart />}></Route>
           </Routes>
         </BrowserRouter>
       </CartProvider>
