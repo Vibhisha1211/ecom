@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import "./product.css";
-
+import CartConext from "../Store/cart-context";
+import { useNavigate } from "react-router-dom";
 import {
     Grid,
     GridItem,
@@ -8,20 +9,40 @@ import {
     Image,
     Box,
     Button,
-    Center
+    Center,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    ModalCloseButton,
+    useDisclosure,
+    Input,
+    Textarea,
 } from "@chakra-ui/react";
 import { AiOutlineShoppingCart, AiFillDelete } from "react-icons/ai";
+import { observer } from "mobx-react-lite"
+import Timer from "../MobX/Timer";
 
+const Product = ({ handleAddToCart, onClickDeleteProduct }) => {
 
-const Product = ({ gotoCart, prodList, onClickAddNewProduct, handleAddToCart,
-    onClickDeleteProduct }) => {
-    const productList = prodList;
-    const x = onClickAddNewProduct;
+    const CartCtx = useContext(CartConext);
+    const productList = CartCtx.products;
+    const navigate = useNavigate();
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [defualtNewProd, setNewProd] = useState([]);
+    const AddProdSubmitHandler = () => {
+        setNewProd({ ...defualtNewProd, image: 'https://i.pravatar.cc', id: 1 + Math.random() });
+        CartCtx.addProduct(defualtNewProd);
+    }
+    const myTimer = new Timer();
+    const TimerView = observer(({ timer }) => <span>Seconds passed: {timer.secondsPassed}</span>)
 
     return (
         <Box display='flex' flexDirection='column' gap='2'>
-
-            <Button rightIcon={<AiOutlineShoppingCart />} alignSelf={'end'} onClick={gotoCart}>My Cart</Button>
+            <Button rightIcon={<AiOutlineShoppingCart />} alignSelf={'end'} onClick={() => navigate("/Cart")}>My Cart - {CartCtx.items.length}</Button>
+            <TimerView timer={myTimer} />
             <Grid columns={4} templateColumns="repeat(5, 1fr)" gap={4}>
                 {productList.map((product) => {
                     return (
@@ -51,7 +72,7 @@ const Product = ({ gotoCart, prodList, onClickAddNewProduct, handleAddToCart,
                                 <br />
                                 <Box display="flex" flexDirection='revert' Spacing={3}>
                                     <Button backgroundColor="blackAlpha.400" onClick={() => handleAddToCart(product.id)} >
-                                        {product.quantity ? 'In Cart' : 'Add to Cart'}
+                                        {CartCtx.items.find(item => { if (item.id === product.id) return true; return false; }) ? 'In Cart' : 'Add to Cart'}
                                     </Button>
                                     <Button alignSelf='end' backgroundColor="blackAlpha.400" onClick={() => onClickDeleteProduct(product.id)} leftIcon={<AiFillDelete />}></Button>
                                 </Box>
@@ -61,7 +82,23 @@ const Product = ({ gotoCart, prodList, onClickAddNewProduct, handleAddToCart,
                     );
                 })}
             </Grid>
-            <Button backgroundColor="blackAlpha.400" onClick={x} alignSelf='end'>+ Add New Product</Button>
+            <Button backgroundColor="blackAlpha.400" onClick={onOpen} alignSelf='end'>+ Add New Product</Button>
+            <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>Add the product</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <Input placeholder="Product Title" onChange={(e) => { setNewProd({ ...defualtNewProd, title: e.target.value }) }}></Input>
+                        <Textarea placeholder="Product Description" onChange={(e) => { setNewProd({ ...defualtNewProd, description: e.target.value }) }}></Textarea>
+                        <Input placeholder="Price ($)" onChange={(e) => { setNewProd({ ...defualtNewProd, price: e.target.value }) }}></Input>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button onClick={AddProdSubmitHandler}>Submit</Button>
+                        <Button colorScheme='blue' mr={3} onClick={onClose}>Close</Button></ModalFooter>
+                </ModalContent>
+
+            </Modal>
         </Box >
     );
 };

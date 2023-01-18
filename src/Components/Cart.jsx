@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import CartConext from "../Store/cart-context"
+
 import {
     Grid,
     GridItem,
@@ -12,53 +14,24 @@ import {
     Stack,
     Select
 } from "@chakra-ui/react";
-import Product from './product';
 
 const Cart = () => {
-    const { state } = useLocation();
     const navigate = useNavigate();
-    const [cartList, setCartList] = useState(state.cart);
-    const [totalPrice, setTotalPrice] = useState(0);
+    const CartCtx = useContext(CartConext);
 
     const removeFromCart = (e, itemId) => {
         e.preventDefault();
-        console.log("In remove function", itemId);
-        setCartList(cartList => cartList.filter((cart) => cart.id !== itemId))
+        CartCtx.removeItem(itemId);
     }
-
-    useEffect(() => {
-        let tempTotal = 0;
-        cartList.map((item) => {
-            tempTotal = tempTotal + item.quantity * item.price;
-        });
-        setTotalPrice(tempTotal);
-
-
-    }, [cartList]);
-
 
     const changeQty = (e, itemId) => {
-        console.log("Quantity of item", e.target.value);
-        const newList = cartList.map((item) => {
-            if (item.id === itemId) {
-                console.log("In if...")
-                const updatedItem = {
-                    ...item,
-                    quantity: e.target.value,
-                };
-                console.log(updatedItem);
-                return updatedItem;
-            }
-            return item;
-        });
-        setCartList(newList);
-        console.log(newList)
-    }
+        CartCtx.updateQuantity(itemId, e.target.value);
+    };
 
     return (
         <>
             <Grid columns={4} templateColumns="repeat(5, 1fr)" gap={4}>
-                {cartList.map((cartItem) => {
+                {CartCtx.items.map((cartItem) => {
                     return (
                         <>
                             <GridItem maxW="md" padding="4" background="blackAlpha.300">
@@ -85,19 +58,24 @@ const Cart = () => {
                                 </Box>
                                 <br />
                                 <Stack display='flex' w={40}>
-                                    <Select placeholder='Select' onChange={e => changeQty(e, cartItem.id)}>
+                                    <Select placeholder='Select' onChange={e => changeQty(e, cartItem.id)} value={cartItem.quantity}>
                                         <option value="1">1</option>
                                         <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
                                     </Select>
                                 </Stack>
                                 <Button backgroundColor="blackAlpha.400" onClick={e => removeFromCart(e, cartItem.id)}>Remove</Button>
                             </GridItem>
                         </>
+
                     );
                 })}
             </Grid>
             <Box alignSelf='baseline' verticalAlign='end'>
-                <Text>Total Price: {totalPrice}</Text>
+                <Text>Total Price: {CartCtx.totalAmount.toFixed(2)}</Text>
                 <Link onClick={() => navigate(-1)}>Go To Products</Link>
             </Box>
         </>

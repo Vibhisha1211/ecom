@@ -5,15 +5,15 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Cart from "./Components/Cart";
 import { Text, Image, Box } from "@chakra-ui/react";
 import minion from "./Assets/minion.jpg";
-import CartProvider from "./Store/cart-provider";
-import { useEffect, useState } from "react";
+import TheProvider from "./Store/theprovider";
+import CartConext from "./Store/cart-context";
+import { useContext } from "react";
 
 function App() {
   return (
     <ChakraProvider>
-      <CartProvider>
+      <TheProvider>
         <div className="App"></div>
-
         <Box
           bg="blackAlpha.100"
           color="blackAlpha.800"
@@ -27,17 +27,16 @@ function App() {
             Vykaa Shopping
           </Text>
           <Box paddingLeft="4" alignSelf="end">
-            <Image src={minion} blockSize="50px" alt="Me" borderRadius="50" />
+            <Image src={minion} boxSize="60px" alt="Me" borderRadius="30" />
           </Box>
         </Box>
-
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<GetProducts />}></Route>
-            <Route path="/cart" element={<Cart />}></Route>
+            <Route path="/Cart" element={<Cart />}></Route>
           </Routes>
         </BrowserRouter>
-      </CartProvider>
+      </TheProvider>
     </ChakraProvider>
   );
 }

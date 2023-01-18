@@ -1,24 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import Product from './product';
-import axios, { isCancel, AxiosError } from 'axios';
-import { useNavigate } from 'react-router-dom';
-import Cart from './Cart';
-
-
+import CartConext from '../Store/cart-context';
 
 const GetProducts = () => {
-    const [cart, setCart] = useState([]);
-    const [list1, setList] = useState([]);
-    const newProduct = { id: 11, title: 'New Title Added', price: 13.5, description: 'New desc', image: 'https://i.pravatar.cc' }
-    const navigate = useNavigate();
-    function gotoCart(event) {
-        event.preventDefault();
-        console.log("goto cart")
-        navigate('/cart', { state: { cart } })
-    }
+    const CartCtx = useContext(CartConext);
 
     useEffect(() => {
-        if (list1.length) return
+        if (CartCtx.products.length) return
         fetch('https://fakestoreapi.com/products?sort=desc')
             .then(response => response.json())
             .then(responseData => {
@@ -30,43 +18,33 @@ const GetProducts = () => {
                         image: responseData[key].image,
                         price: responseData[key].price,
                         rating: { count: responseData[key].rating.count, rate: responseData[key].rating.rate },
-                        description: responseData[key].description
+                        description: responseData[key].description,
+                        quantity: 0
                     });
                 }
-                setList(loadedProducts);
+                CartCtx.setProducts(loadedProducts);
             })
     }, [])
 
-    const addProductHandler = (e) => {
-        console.log("Event", e);
-        // axios.post(`https://fakestoreapi.com/products`, { title, description, price, image, category })
-        //     .then(response => { console.log(response); });
-        setList([...list1, newProduct]);
-    }
+    // axios.post(`https://fakestoreapi.com/products`, { title, description, price, image, category })
+    //     .then(response => { console.log(response); });
+
 
     const deleteProductHandler = (id) => {
-        setList((x) =>
-            x.filter((list1) => {
-                return list1.id !== id;
-            })
-        );
+        CartCtx.deleteProduct(id);
     }
 
-    useEffect(() => {
-        console.log('Added to cart', cart)
-    }, [cart])
-
     function handleAddToCart(productId) {
-        const product = list1.find(product => product.id === productId);
+        const product = CartCtx.products.find(product => product.id === productId);
         if (product) {
             product['quantity'] = 1;
-            setCart([product, ...cart]);
+            CartCtx.addItem(product);
         }
     }
 
     return (
         <div>
-            <Product prodList={list1} gotoCart={gotoCart} onClickAddNewProduct={addProductHandler} handleAddToCart={handleAddToCart} onClickDeleteProduct={deleteProductHandler} />
+            <Product handleAddToCart={handleAddToCart} onClickDeleteProduct={deleteProductHandler} />
         </div>
     );
 };
